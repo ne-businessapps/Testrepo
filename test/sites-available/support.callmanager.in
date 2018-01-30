@@ -1,0 +1,80 @@
+server {
+        listen 80 ;
+        listen [::]:80;
+
+        root /var/www/development/public;
+
+        #root defines the path to project folder and location that run on server .
+
+        # index shows the index file list .
+        index index.html index.php  index.htm index.nginx-debian.html;
+        # it defines server name .
+
+        server_name support.callmanager.in;
+
+        location / {
+
+                # as directory, then fall back to displaying a 404.
+                #try_files $uri $uri/ =404;
+                #try_files $uri $uri/ /index.php;
+                 try_files $uri $uri/ /office.php;
+        }
+
+
+        error_page 404 /custom_40x.html;
+
+        location = /custom_40x.html {
+        root /usr/share/nginx/html;
+        internal;
+        }
+
+        error_page 500 502 503 504 /custom_50x.html;
+
+        location = /custom_50x.html {
+        root /usr/share/nginx/html;
+        internal;
+        }
+
+
+        # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
+        #
+
+#        location ~ \.php$ {
+
+#                include snippets/fastcgi-php.conf;
+
+#               fastcgi_read_timeout 120;
+#                include         fastcgi_params;
+#                fastcgi_param   SCRIPT_FILENAME    $document_root$fastcgi_script_name;
+
+        #       # With php7.0-cgi alone:
+        #       fastcgi_pass 127.0.0.1:9000;
+        #       # With php7.0-fpm:
+#                fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+#        }
+
+location ~ \.php$ {
+
+        try_files $uri =404;
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
+        fastcgi_index index.php;
+        include fastcgi.conf;
+        fastcgi_read_timeout 120;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        # Include the standard fastcgi_params file included with nginx
+        fastcgi_param  PATH_INFO        $fastcgi_path_info;
+        # Pass to upstream PHP-FPM; This must match whatever you name your upstream connection
+
+    }
+
+
+        # deny access to .htaccess files, if Apache's document root
+        # concurs with nginx's one
+
+        location ~ /\.ht {
+                deny all;
+        }
+}
+
+
